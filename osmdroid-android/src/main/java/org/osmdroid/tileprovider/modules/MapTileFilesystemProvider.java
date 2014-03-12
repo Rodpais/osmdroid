@@ -150,6 +150,9 @@ public class MapTileFilesystemProvider extends MapTileFileStorageProviderBase {
 
 				try {
 					final Drawable drawable = tileSource.getDrawable(file.getPath());
+					if (drawable == null) {
+						return null;
+					}
 
 					// Check to see if file has expired
 					final long now = System.currentTimeMillis();
