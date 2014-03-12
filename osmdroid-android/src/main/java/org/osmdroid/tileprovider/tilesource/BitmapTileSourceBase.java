@@ -97,7 +97,7 @@ public abstract class BitmapTileSourceBase implements ITileSource,
 	}
 
 	@Override
-	public Drawable getDrawable(final String aFilePath) {
+	public Drawable getDrawable(final String aFilePath) throws LowMemoryException {
 		Bitmap bitmap;
 		BitmapFactory.Options bitmapOptions;
 		try {
@@ -125,6 +125,7 @@ public abstract class BitmapTileSourceBase implements ITileSource,
 		} catch (final OutOfMemoryError e) {
 			logger.error("OutOfMemoryError loading bitmap: " + aFilePath);
 			System.gc();
+			throw new LowMemoryException(e);
 		}
 		return null;
 	}
