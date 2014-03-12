@@ -14,8 +14,10 @@ public final class SampleFactory {
 	}
 
 	private SampleFactory() {
-		mSamples = new BaseSampleFragment[] { new SampleWithMinimapItemizedoverlayWithFocus(),
-				new SampleLimitedScrollArea(), new SampleFragmentXmlLayout() };
+		mSamples = new BaseSampleFragment[] {new SampleWithMinimapItemizedoverlayWithFocus(),
+				new SampleLimitedScrollArea(), new SampleFragmentXmlLayout(),
+				new SampleRgb565TileSource()
+		};
 	}
 
 	public BaseSampleFragment getSample(int index) {
