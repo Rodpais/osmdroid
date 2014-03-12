@@ -1,6 +1,7 @@
 package org.osmdroid.tileprovider.tilesource;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
 
@@ -97,12 +98,20 @@ public abstract class BitmapTileSourceBase implements ITileSource,
 
 	@Override
 	public Drawable getDrawable(final String aFilePath) {
+		Bitmap bitmap;
+		BitmapFactory.Options bitmapOptions;
 		try {
 			// default implementation will load the file as a bitmap and create
 			// a BitmapDrawable from it
-			BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+			bitmapOptions = new BitmapFactory.Options();
 			BitmapPool.getInstance().applyReusableOptions(bitmapOptions);
-			final Bitmap bitmap = BitmapFactory.decodeFile(aFilePath, bitmapOptions);
+			try {
+				bitmap = BitmapFactory.decodeFile(aFilePath, bitmapOptions);
+			} catch (IllegalArgumentException cannotReuseBitmapException) {
+				logger.debug("Cannot reuse bitmap", cannotReuseBitmapException);
+				bitmapOptions = new BitmapFactory.Options();
+				bitmap = BitmapFactory.decodeFile(aFilePath, bitmapOptions);
+			}
 			if (bitmap != null) {
 				return new ReusableBitmapDrawable(bitmap);
 			} else {
@@ -136,12 +145,25 @@ public abstract class BitmapTileSourceBase implements ITileSource,
 
 	@Override
 	public Drawable getDrawable(final InputStream aFileInputStream) throws LowMemoryException {
+		Bitmap bitmap;
+		BitmapFactory.Options bitmapOptions;
 		try {
 			// default implementation will load the file as a bitmap and create
 			// a BitmapDrawable from it
-			BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+			bitmapOptions = new BitmapFactory.Options();
 			BitmapPool.getInstance().applyReusableOptions(bitmapOptions);
-			final Bitmap bitmap = BitmapFactory.decodeStream(aFileInputStream, null, bitmapOptions);
+			try {
+				bitmap = BitmapFactory.decodeStream(aFileInputStream, null, bitmapOptions);
+			} catch (IllegalArgumentException cannotReuseBitmapException) {
+				logger.debug("Cannot reuse bitmap", cannotReuseBitmapException);
+				try {
+					aFileInputStream.reset();
+				} catch (IOException ioe) {
+					logger.info("aFileInputStream.reset() error", ioe);
+				}
+				bitmapOptions = new BitmapFactory.Options();
+				bitmap = BitmapFactory.decodeStream(aFileInputStream, null, bitmapOptions);
+			}
 			if (bitmap != null) {
 				return new ReusableBitmapDrawable(bitmap);
 			}
